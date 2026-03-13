@@ -1,18 +1,20 @@
-# 1. ใช้ Image พื้นฐานเป็น Node.js รุ่น Alpine (เล็กและเร็ว)
+# ใช้ Node.js รุ่น Alpine
 FROM node:alpine
 
-# 2. ตั้งชื่อโฟลเดอร์ที่จะรันงานใน Container
+# ตั้งพื้นที่ทำงาน
 WORKDIR /app
 
-# 3. ก๊อปปี้ไฟล์ package.json เพื่อติดตั้ง Library
-COPY package*.json ./
+# ก๊อปปี้ package.json จากโฟลเดอร์ todo_backend
+COPY TODO/todo_backend/package*.json ./
+
+# ติดตั้ง Library
 RUN npm install --production
 
-# 4. ก๊อปปี้โค้ดทั้งหมดที่เหลือเข้าเครื่อง
-COPY . .
+# ก๊อปปี้ไฟล์ทั้งหมดจาก todo_backend เข้ามา (รวม server.js)
+COPY TODO/todo_backend/ .
 
-# 5. บอก Docker ว่าแอปเราจะวิ่งที่ Port 5000 (ตามโจทย์)
+# Port ที่แอปทำงาน (ตามโจทย์)
 EXPOSE 5000
 
-# 6. คำสั่งรันแอป (เช็คใน README.md อีกที ถ้าเขาใช้ node server.js ก็เปลี่ยนตามนั้น)
-CMD ["npm", "start"]
+# รันแอป
+CMD ["node", "server.js"]
