@@ -1,47 +1,37 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'node20' // ชื่อต้องตรงกับที่ตั้งในเมนู Tools นะครับ
-    }
-
     environment {
-        DOCKER_USER = 'kimmy2' // แก้ตรงนี้
+        // เปลี่ยนเป็น username ของคุณ
+        DOCKER_USER = 'kimmy2' 
         IMAGE_NAME  = 'finead-todo-app'
-        // ดึง Credential ที่เราสร้างไว้ใน Step 3 มาใช้แบบปลอดภัย
         DOCKER_CREDS = credentials('docker-hub-creds')
     }
 
     stages {
-        stage('Build') {
-            steps {
-                echo '📦 Installing dependencies...'
-                sh 'npm install' 
-                // หมายเหตุ: ถ้าในโปรเจกต์มีแยกโฟลเดอร์ย่อย 
-                // ให้ใช้ 'cd backend && npm install' แทน
-            }
-        }
+        // เราจะลบ stage 'Build' ที่รัน npm install บนเครื่อง Jenkins ออก
+        // เพราะเราจะไปสั่ง build ใน Dockerfile แทน (ตามกฎ Task 3)
 
         stage('Containerise') {
             steps {
-                echo '🐳 Building Docker Image...'
+                echo '🐳 Building Docker Image (Dependencies will be installed inside)...'
+                // คำสั่งนี้จะทำการ npm install ภายใน Container ระหว่าง build
                 sh "docker build -t ${DOCKER_USER}/${IMAGE_NAME}:latest ."
             }
         }
 
         stage('Push') {
             steps {
-                echo '🚀 Pushing to Docker Hub...'
-                // ล็อกอินโดยใช้รหัสจาก Credentials Provider
+                echo '🚀 Logging into Docker Hub and Pushing...'
                 sh "echo \$DOCKER_CREDS_PSW | docker login -u \$DOCKER_CREDS_USR --password-stdin"
                 sh "docker push ${DOCKER_USER}/${IMAGE_NAME}:latest"
             }
         }
     }
-
+    
     post {
         always {
-            sh "docker logout" // ล็อกเอาท์ทุกครั้งหลังจบงานเพื่อความปลอดภัย
+            sh "docker logout"
         }
     }
 }
