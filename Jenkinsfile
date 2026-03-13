@@ -1,8 +1,12 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'node20' // ชื่อต้องตรงกับที่ตั้งในเมนู Tools นะครับ
+    }
+
     environment {
-        DOCKER_USER = 'ชื่อ-dockerhub-ของคุณ' // แก้ตรงนี้
+        DOCKER_USER = 'kimmy2' // แก้ตรงนี้
         IMAGE_NAME  = 'finead-todo-app'
         // ดึง Credential ที่เราสร้างไว้ใน Step 3 มาใช้แบบปลอดภัย
         DOCKER_CREDS = credentials('docker-hub-creds')
