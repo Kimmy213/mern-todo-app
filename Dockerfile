@@ -1,20 +1,20 @@
-# ใช้ Node.js รุ่น Alpine
-FROM node:alpine
 
-# ตั้งพื้นที่ทำงาน
+FROM node:alpine AS build
 WORKDIR /app
+COPY TODO/todo_frontend/package*.json ./
+RUN npm install
+COPY TODO/todo_frontend/ .
+RUN npm run build
 
-# ก๊อปปี้ package.json จากโฟลเดอร์ todo_backend
+
+FROM node:alpine
+WORKDIR /app
 COPY TODO/todo_backend/package*.json ./
-
-# ติดตั้ง Library
 RUN npm install --production
-
-# ก๊อปปี้ไฟล์ทั้งหมดจาก todo_backend เข้ามา (รวม server.js)
 COPY TODO/todo_backend/ .
 
-# Port ที่แอปทำงาน (ตามโจทย์)
-EXPOSE 5000
 
-# รันแอป
+COPY --from=build /app/build ./static/build
+
+EXPOSE 5000
 CMD ["node", "server.js"]
